@@ -37,7 +37,7 @@ def makeResponse(req):
         if date in weather[i]['dt_txt']:
             condition= weather[i]['weather'][0]['description']
             break
-    speech = "The forecast for"+city+ "for "+date-time+" is "+condition
+    speech = "The forecast for"+city+ "for "+date+" is "+condition
     return {
     "speech": speech,
     "displayText": speech,
