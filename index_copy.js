@@ -25,7 +25,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
        
  }
  catch(ex) {
-		response.status(500).send(ex.message);
+      response.status(500).send(ex.message);
  }
  
 function welcome(agent) {
@@ -39,24 +39,18 @@ function fallback(agent) {
 
 
 function Sales_Site(mainRequest, mainResponse) {
-	var Site = String(mainRequest.body.queryResult.parameters.Site);
-
-	
+	var Site = String(mainRequest.body.queryResult.parameters.Site);	
 	var url = 'https://dev-stage-6.herokuapp.com/citysales/cityname?city_sales='+Site;
 
 	request(url, { json: true }, (err, res, body) => {
-
 		var output = "";
-
 		if (!err && res.statusCode == 200) {
 			output ="The sales for $Site is $output" ;
 		} else {
 			output = "Sales Data is not available, please try after sometime.";
 		}
-
 		var response = {};
 		response.fulfillmentText = output;
-
 		mainResponse.status(200).send(response);
 	});
 }
