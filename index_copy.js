@@ -15,14 +15,13 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
   console.log('Dialogflow Request headers: ' + JSON.stringify(request.headers));
   console.log('Dialogflow Request body: ' + JSON.stringify(request.body));
   try {
-		var action = request.body.queryResult.action;
+      var action = request.body.queryResult.action;
 
-		    if (action == 'Sales_Based_On_Site') {
-		       	Sales_Site(request, response);
-	    	}
-      else {
-			       fallback(agent);
-		    }
+      if (action == 'Sales_Based_On_Site') {
+           Sales_Site(request, response);
+      }
+      else { fallback(agent);
+      }
        
  }
  catch(ex) {
