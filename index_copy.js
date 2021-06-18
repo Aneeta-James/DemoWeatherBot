@@ -5,6 +5,8 @@
 const functions = require('firebase-functions');
 const {WebhookClient} = require('dialogflow-fulfillment');
 const {Card, Suggestion} = require('dialogflow-fulfillment');
+const request = require('request');
+
  
 process.env.DEBUG = 'dialogflow:debug'; // enables lib debugging statements
  
@@ -12,15 +14,53 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
   const agent = new WebhookClient({ request, response });
   console.log('Dialogflow Request headers: ' + JSON.stringify(request.headers));
   console.log('Dialogflow Request body: ' + JSON.stringify(request.body));
+  try {
+		var action = request.body.queryResult.action;
+
+		    if (action == 'Sales_Based_On_Site') {
+		       	Sales_Site(request, response);
+	    	}
+      else {
+			       fallback(agent);
+		    }
+       
+ }
+ catch(ex) {
+		response.status(500).send(ex.message);
+ }
  
-  function welcome(agent) {
+function welcome(agent) {
     agent.add(`Welcome to my agent!`);
-  }
+}
  
-  function fallback(agent) {
+function fallback(agent) {
     agent.add(`I didn't understand`);
     agent.add(`I'm sorry, can you try again?`);
-  }
+}
+
+
+function Sales_Site(mainRequest, mainResponse) {
+	var Site = String(mainRequest.body.queryResult.parameters.Site);
+
+	
+	var url = 'https://dev-stage-6.herokuapp.com/citysales/cityname?city_sales='+Site;
+
+	request(url, { json: true }, (err, res, body) => {
+
+		var output = "";
+
+		if (!err && res.statusCode == 200) {
+			output ="The sales for $Site is $output" ;
+		} else {
+			output = "Sales Data is not available, please try after sometime.";
+		}
+
+		var response = {};
+		response.fulfillmentText = output;
+
+		mainResponse.status(200).send(response);
+	});
+}
 
   // // Uncomment and edit to make your own intent handler
   // // uncomment `intentMap.set('your intent name here', yourFunctionHandler);`
@@ -55,8 +95,7 @@ exports.dialogflowFirebaseFulfillment = functions.https.onRequest((request, resp
   let intentMap = new Map();
   intentMap.set('Default Welcome Intent', welcome);
   intentMap.set('Default Fallback Intent', fallback);
-  intentMap.set('Sales_Based_On_Site', Sales_Based_On_Site);
-  
+  intentMap.set('Sales_Based_On_Site', Sales_Site);
   // intentMap.set('your intent name here', yourFunctionHandler);
   // intentMap.set('your intent name here', googleAssistantHandler);
   agent.handleRequest(intentMap);
